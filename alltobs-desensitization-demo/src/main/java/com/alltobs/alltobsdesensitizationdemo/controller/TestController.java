@@ -16,6 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
+    @Desensitize(
+            type = DesensitizeType.MOBILE_PHONE,
+            maskChar = "^",
+            fields = {
+                    @Desensitize.Field(name = "username", exclude = true),
+                    @Desensitize.Field(name = "phoneNumber"),
+                    @Desensitize.Field(name = "email", type = DesensitizeType.EMAIL, exclude = false)
+            }
+    )
     @GetMapping("/test")
     public TestVO getUser() {
         TestVO test = new TestVO();
