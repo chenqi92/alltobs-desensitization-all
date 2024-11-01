@@ -1,9 +1,11 @@
 package com.alltobs.desensitization;
 
 import com.alltobs.desensitization.aspect.DesensitizeAspect;
-import org.springframework.context.annotation.Bean;
+import com.alltobs.desensitization.config.AlltobsJacksonConfig;
+import com.alltobs.desensitization.handler.DesensitizationRequestBodyAdvice;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
 
 /**
  * 类 DesensitizationAutoConfiguration
@@ -13,10 +15,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  */
 @Configuration
 @EnableAspectJAutoProxy
+@Import({DesensitizeAspect.class, DesensitizationRequestBodyAdvice.class, AlltobsJacksonConfig.class})
 public class DesensitizationAutoConfiguration {
 
-    @Bean
-    public DesensitizeAspect desensitizeAspect() {
-        return new DesensitizeAspect();
-    }
 }
