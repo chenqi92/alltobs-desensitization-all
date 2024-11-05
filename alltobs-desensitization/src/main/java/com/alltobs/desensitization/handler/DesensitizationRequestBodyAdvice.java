@@ -1,9 +1,9 @@
 package com.alltobs.desensitization.handler;
 
 import com.alltobs.desensitization.annotation.Desensitize;
+import com.alltobs.desensitization.annotation.ValidateDesensitize;
+import com.alltobs.desensitization.annotation.ValidateDesensitizes;
 import com.alltobs.desensitization.enums.DesensitizeType;
-import com.alltobs.desensitization.exception.DesensitizationException;
-import com.alltobs.desensitization.utils.DesensitizeUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -24,27 +27,40 @@ import java.util.regex.Pattern;
 @ControllerAdvice
 public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
 
+    private static final ThreadLocal<Map<String, ValidateDesensitize>> METHOD_FIELD_CONFIG = new ThreadLocal<>();
+
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        return true; // 应用于所有请求体
+        ValidateDesensitizes validateMethod = methodParameter.getMethodAnnotation(ValidateDesensitizes.class);
+        if (validateMethod != null) {
+            Map<String, ValidateDesensitize> fieldConfigMap = new HashMap<>();
+            for (ValidateDesensitize fieldConfig : validateMethod.value()) {
+                fieldConfigMap.put(fieldConfig.field(), fieldConfig);
+            }
+            METHOD_FIELD_CONFIG.set(fieldConfigMap);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter,
                                            Type targetType, Class<? extends HttpMessageConverter<?>> converterType)
             throws IOException {
-        return inputMessage; // 读取前不做处理
+        return inputMessage; // 在读取请求体之前不做处理
     }
 
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter methodParameter,
                                 Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         try {
-            validateFields(body);
+            Map<String, ValidateDesensitize> fieldConfigMap = METHOD_FIELD_CONFIG.get();
+            validateFields(body, fieldConfigMap);
         } catch (IllegalAccessException e) {
-            // 记录异常日志，或进行其他处理
-            e.printStackTrace();
+            e.printStackTrace(); // 记录异常
+        } finally {
+            METHOD_FIELD_CONFIG.remove();
         }
         return body;
     }
@@ -52,39 +68,41 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter methodParameter,
                                   Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return body; // 空请求体不做处理
+        return body; // 对于空的请求体不做处理
     }
 
-    private void validateFields(Object obj) throws IllegalAccessException {
-        if (obj == null) return;
+    private void validateFields(Object obj, Map<String, ValidateDesensitize> fieldConfigMap) throws IllegalAccessException {
+        if (obj == null || fieldConfigMap == null) return;
+
         Class<?> clazz = obj.getClass();
         if (clazz.getName().startsWith("java.")) {
             return; // 跳过 Java 内置类
         }
+
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             Object value = field.get(obj);
             if (value == null) continue;
 
-            // 获取字段上的 @Desensitize 注解
-            Desensitize desensitize = field.getAnnotation(Desensitize.class);
+            ValidateDesensitize fieldConfig = fieldConfigMap.get(field.getName());
 
-            if (desensitize != null) {
-                String maskChar = desensitize.maskChar();
-                DesensitizeType type = desensitize.type();
+            if (fieldConfig != null) {
+                String maskChar = fieldConfig.maskChar();
+                DesensitizeType type = fieldConfig.type();
 
-                // 检测字段值是否包含脱敏内容
+                // 检查字段值是否包含脱敏内容
                 if (isDesensitized(value.toString(), type, maskChar)) {
-                    // 将字段设置为 null，表示不接受该字段
+                    System.out.println("字段 " + field.getName() + " 包含脱敏内容，已被忽略。");
+                    // 将字段设置为 null，表示忽略该字段
                     field.set(obj, null);
                     continue; // 处理下一个字段
                 }
             }
 
-            // 如果字段是对象或集合，递归检查
+            // 递归检查嵌套对象
             if (!isPrimitiveOrWrapper(field.getType()) && !(value instanceof String)) {
-                validateFields(value);
+                validateFields(value, fieldConfigMap);
             }
         }
     }
@@ -94,16 +112,14 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
             maskChar = "*"; // 默认脱敏字符
         }
 
-        // 转义脱敏字符
+        // 转义脱敏字符，以便在正则表达式中使用
         String escapedMaskChar = Pattern.quote(maskChar);
 
         switch (type != null ? type : DesensitizeType.CUSTOM) {
             case MOBILE_PHONE:
-                // 检测手机号是否被脱敏（中间四位为脱敏字符）
                 String mobileRegex = "^\\d{3}" + escapedMaskChar + "{4}\\d{4}$";
                 return value.matches(mobileRegex);
             case EMAIL:
-                // 检测邮箱是否被脱敏（本地部分包含脱敏字符）
                 int atIndex = value.indexOf("@");
                 if (atIndex <= 0) {
                     return false; // 非法的邮箱格式
@@ -112,12 +128,10 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
                 String emailRegex = ".*" + escapedMaskChar + "+.*";
                 return localPart.matches(emailRegex);
             case ID_CARD:
-                // 检测身份证号是否被脱敏（中间部分为脱敏字符）
                 String idCardRegex = "^\\d{3}" + escapedMaskChar + "{10}[0-9Xx]{4}$";
                 return value.matches(idCardRegex);
             case CUSTOM:
             default:
-                // 自定义类型，可以根据需要调整
                 String customRegex = ".*" + escapedMaskChar + "+.*";
                 return value.matches(customRegex);
         }

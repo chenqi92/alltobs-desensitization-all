@@ -4,8 +4,6 @@ import com.alltobs.desensitization.enums.DesensitizeType;
 
 import java.util.regex.Pattern;
 
-import static com.alltobs.desensitization.enums.DesensitizeType.*;
-
 /**
  * 类 DesensitizeUtils 脱敏工具
  *

@@ -5,15 +5,15 @@ import com.alltobs.desensitization.enums.DesensitizeType;
 import java.lang.annotation.*;
 
 /**
- * 注解 Desensitize 字段注解
+ * 类 ValidateDesensitize
  *
  * @author ChenQi
- * &#064;date 2024/11/1
+ * &#064;date 2024/11/4
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Desensitize {
+public @interface ValidateDesensitize {
     // 字段名称（用于方法配置）
     String field() default "";
 

@@ -1,5 +1,6 @@
 package com.alltobs.desensitization.config;
 
+import com.alltobs.desensitization.serializer.DesensitizeSerializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,8 @@ public class AlltobsJacksonConfig {
 
     @Bean
     public SimpleModule desensitizationModule() {
-        return new DesensitizationModule();
+        SimpleModule module = new SimpleModule();
+        module.setSerializerModifier(new DesensitizeSerializerModifier());
+        return module;
     }
 }

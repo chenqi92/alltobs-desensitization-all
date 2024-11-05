@@ -13,12 +13,11 @@ import lombok.Data;
 @Data
 public class TestVO {
 
-    @Desensitize(exclude = true)
     private String username;
 
-    @Desensitize(type = DesensitizeType.MOBILE_PHONE)
+//    @Desensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true)
     private String phoneNumber;
 
-    @Desensitize(type = DesensitizeType.EMAIL, maskChar = "#")
+//    @Desensitize(type = DesensitizeType.EMAIL, maskChar = "#", enabled = true)
     private String email;
 }
