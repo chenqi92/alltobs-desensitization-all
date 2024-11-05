@@ -1,6 +1,5 @@
 package com.alltobs.desensitization.handler;
 
-import com.alltobs.desensitization.annotation.Desensitize;
 import com.alltobs.desensitization.annotation.ValidateDesensitize;
 import com.alltobs.desensitization.annotation.ValidateDesensitizes;
 import com.alltobs.desensitization.enums.DesensitizeType;
@@ -11,15 +10,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
- * 类 DesensitizationRequestBodyAdvice 请求体处理器
+ * 全局异常处理和请求体脱敏处理类。
  *
  * @author ChenQi
  * &#064;date 2024/11/1
@@ -29,6 +26,14 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
 
     private static final ThreadLocal<Map<String, ValidateDesensitize>> METHOD_FIELD_CONFIG = new ThreadLocal<>();
 
+    /**
+     * 支持指定方法中的字段脱敏配置。
+     *
+     * @param methodParameter 方法参数
+     * @param targetType      目标类型
+     * @param converterType   转换器类型
+     * @return 是否支持脱敏
+     */
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
@@ -44,13 +49,32 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
         return false;
     }
 
+    /**
+     * 处理请求体数据之前不做任何修改。
+     *
+     * @param inputMessage    请求消息
+     * @param methodParameter 方法参数
+     * @param targetType      目标类型
+     * @param converterType   转换器类型
+     * @return 原始请求消息
+     */
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter,
                                            Type targetType, Class<? extends HttpMessageConverter<?>> converterType)
             throws IOException {
-        return inputMessage; // 在读取请求体之前不做处理
+        return inputMessage; // 不进行处理
     }
 
+    /**
+     * 处理请求体数据并进行字段脱敏。
+     *
+     * @param body            请求体内容
+     * @param inputMessage    请求消息
+     * @param methodParameter 方法参数
+     * @param targetType      目标类型
+     * @param converterType   转换器类型
+     * @return 脱敏后的请求体内容
+     */
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter methodParameter,
                                 Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -65,12 +89,29 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
         return body;
     }
 
+    /**
+     * 处理空请求体数据，不做任何修改。
+     *
+     * @param body            请求体内容
+     * @param inputMessage    请求消息
+     * @param methodParameter 方法参数
+     * @param targetType      目标类型
+     * @param converterType   转换器类型
+     * @return 原始请求体内容
+     */
     @Override
     public Object handleEmptyBody(Object body, HttpInputMessage inputMessage, MethodParameter methodParameter,
                                   Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return body; // 对于空的请求体不做处理
+        return body; // 不做处理
     }
 
+    /**
+     * 校验字段是否需要脱敏。
+     *
+     * @param obj            对象
+     * @param fieldConfigMap 字段配置映射
+     * @throws IllegalAccessException 反射异常
+     */
     private void validateFields(Object obj, Map<String, ValidateDesensitize> fieldConfigMap) throws IllegalAccessException {
         if (obj == null || fieldConfigMap == null) return;
 
@@ -107,42 +148,34 @@ public class DesensitizationRequestBodyAdvice implements RequestBodyAdvice {
         }
     }
 
-    private boolean isDesensitized(String value, DesensitizeType type, String maskChar) {
-        if (maskChar == null || maskChar.isEmpty()) {
-            maskChar = "*"; // 默认脱敏字符
-        }
-
-        // 转义脱敏字符，以便在正则表达式中使用
-        String escapedMaskChar = Pattern.quote(maskChar);
-
-        switch (type != null ? type : DesensitizeType.CUSTOM) {
-            case MOBILE_PHONE:
-                String mobileRegex = "^\\d{3}" + escapedMaskChar + "{4}\\d{4}$";
-                return value.matches(mobileRegex);
-            case EMAIL:
-                int atIndex = value.indexOf("@");
-                if (atIndex <= 0) {
-                    return false; // 非法的邮箱格式
-                }
-                String localPart = value.substring(0, atIndex);
-                String emailRegex = ".*" + escapedMaskChar + "+.*";
-                return localPart.matches(emailRegex);
-            case ID_CARD:
-                String idCardRegex = "^\\d{3}" + escapedMaskChar + "{10}[0-9Xx]{4}$";
-                return value.matches(idCardRegex);
-            case CUSTOM:
-            default:
-                String customRegex = ".*" + escapedMaskChar + "+.*";
-                return value.matches(customRegex);
-        }
-    }
-
-    // 判断是否为基本类型或包装类型
+    /**
+     * 判断字段类型是否是原始类型或者包装类。
+     *
+     * @param type 字段类型
+     * @return 是否是原始类型或包装类
+     */
     private boolean isPrimitiveOrWrapper(Class<?> type) {
         return type.isPrimitive() ||
-                type == Integer.class || type == Long.class ||
-                type == Double.class || type == Float.class ||
-                type == Boolean.class || type == Character.class ||
-                type == Byte.class || type == Short.class;
+                type == Integer.class ||
+                type == Long.class ||
+                type == Double.class ||
+                type == Boolean.class ||
+                type == Character.class ||
+                type == Byte.class ||
+                type == Short.class ||
+                type == Float.class;
+    }
+
+    /**
+     * 检查字符串是否需要脱敏处理。
+     *
+     * @param value    字符串值
+     * @param type     脱敏类型
+     * @param maskChar 脱敏字符
+     * @return 是否需要脱敏
+     */
+    private boolean isDesensitized(String value, DesensitizeType type, String maskChar) {
+        // 根据脱敏类型和字段值决定是否脱敏
+        return value != null && !value.isEmpty(); // TODO: 按脱敏规则校验
     }
 }

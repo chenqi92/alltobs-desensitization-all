@@ -15,11 +15,12 @@ import lombok.Data;
 @Data
 public class TestDTO {
 
+    @ValidateDesensitize(enabled = false)
     private String username;
 
-//    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true)
+    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true)
     private String phoneNumber;
 
-//    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true, maskChar = "#")
+    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true, maskChar = "#")
     private String email;
 }
