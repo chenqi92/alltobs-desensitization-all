@@ -52,6 +52,15 @@ public class TestController {
         return test;
     }
 
+    @GetMapping("/testJsonAnno")
+    public TestVO testJsonAnno() {
+        TestVO test = new TestVO();
+        test.setUsername("JohnDoe");
+        test.setPhoneNumber("13812345678");
+        test.setEmail("john.doe@example.com");
+        return test;
+    }
+
     /**
      * 测试数据修改，添加注解的字段如果包含脱敏的内容，则忽略接收
      */

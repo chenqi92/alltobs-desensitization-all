@@ -1,7 +1,6 @@
 package com.alltobs.desensitization.serializer;
 
-import com.alltobs.desensitization.annotation.Desensitize;
-import com.alltobs.desensitization.context.DesensitizationContextHolder;
+import com.alltobs.desensitization.annotation.JsonDesensitize;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -26,15 +25,8 @@ public class DesensitizeBeanSerializerModifier extends BeanSerializerModifier {
                                                      BeanDescription beanDesc,
                                                      List<BeanPropertyWriter> beanProperties) {
 
-        // 获取方法级别的脱敏规则
-        Desensitize[] methodDesensitizeRules = DesensitizationContextHolder.getDesensitizationRules();
 
-        Map<String, Desensitize> methodDesensitizeMap = new HashMap<>();
-        if (methodDesensitizeRules != null) {
-            for (Desensitize rule : methodDesensitizeRules) {
-                methodDesensitizeMap.put(rule.field(), rule);
-            }
-        }
+        Map<String, JsonDesensitize> methodDesensitizeMap = new HashMap<>();
 
         Iterator<BeanPropertyWriter> iterator = beanProperties.iterator();
         while (iterator.hasNext()) {
@@ -42,17 +34,13 @@ public class DesensitizeBeanSerializerModifier extends BeanSerializerModifier {
             String fieldName = writer.getName();
 
             // 获取字段级别的 @Desensitize 注解
-            Desensitize fieldDesensitize = writer.getAnnotation(Desensitize.class);
-            // 获取方法级别的 @Desensitize 注解
-            Desensitize methodDesensitize = methodDesensitizeMap.get(fieldName);
+            JsonDesensitize fieldDesensitize = writer.getAnnotation(JsonDesensitize.class);
 
-            Desensitize desensitize = null;
+            JsonDesensitize desensitize = null;
 
             // 决定使用哪个脱敏规则
             if (fieldDesensitize != null) {
                 desensitize = fieldDesensitize;
-            } else if (methodDesensitize != null) {
-                desensitize = methodDesensitize;
             }
 
             if (desensitize != null) {
@@ -73,8 +61,6 @@ public class DesensitizeBeanSerializerModifier extends BeanSerializerModifier {
     public JsonSerializer<?> modifySerializer(SerializationConfig config,
                                               BeanDescription beanDesc,
                                               JsonSerializer<?> serializer) {
-        // 清理脱敏规则以防止线程泄漏
-        DesensitizationContextHolder.clear();
         return serializer;
     }
 }

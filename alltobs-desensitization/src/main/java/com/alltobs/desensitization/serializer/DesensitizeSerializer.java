@@ -1,6 +1,7 @@
 package com.alltobs.desensitization.serializer;
 
 import com.alltobs.desensitization.annotation.Desensitize;
+import com.alltobs.desensitization.annotation.JsonDesensitize;
 import com.alltobs.desensitization.utils.DesensitizeUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -18,12 +19,12 @@ import java.io.IOException;
  */
 public class DesensitizeSerializer extends JsonSerializer<Object> implements ContextualSerializer {
 
-    private Desensitize desensitize;
+    private JsonDesensitize desensitize;
 
     public DesensitizeSerializer() {
     }
 
-    public DesensitizeSerializer(Desensitize desensitize) {
+    public DesensitizeSerializer(JsonDesensitize desensitize) {
         this.desensitize = desensitize;
     }
 
@@ -44,7 +45,7 @@ public class DesensitizeSerializer extends JsonSerializer<Object> implements Con
     public JsonSerializer<?> createContextual(SerializerProvider prov,
                                               BeanProperty property) {
         if (property != null) {
-            Desensitize desensitize = property.getAnnotation(Desensitize.class);
+            JsonDesensitize desensitize = property.getAnnotation(JsonDesensitize.class);
             if (desensitize != null) {
                 return new DesensitizeSerializer(desensitize);
             }
