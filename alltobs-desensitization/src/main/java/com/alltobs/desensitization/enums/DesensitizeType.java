@@ -1,7 +1,5 @@
 package com.alltobs.desensitization.enums;
 
-import java.util.regex.Pattern;
-
 /**
  * 脱敏类型枚举，用于定义不同的脱敏类型。
  *

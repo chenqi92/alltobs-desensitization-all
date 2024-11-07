@@ -1,8 +1,9 @@
 package com.alltobs.desensitization.config;
 
-import com.alltobs.desensitization.serializer.DesensitizeSerializerModifier;
+import com.alltobs.desensitization.serializer.DesensitizeBeanSerializerModifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.springframework.context.annotation.Bean;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -14,15 +15,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AlltobsJacksonConfig {
 
+    private final ObjectMapper objectMapper;
+
+    public AlltobsJacksonConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     /**
      * 配置脱敏模块。
      *
      * @return SimpleModule 脱敏模块
      */
-    @Bean
-    public SimpleModule desensitizationModule() {
+    @PostConstruct
+    public void addDesensitizationModule() {
         SimpleModule module = new SimpleModule();
-        module.setSerializerModifier(new DesensitizeSerializerModifier());
-        return module;
+        module.setSerializerModifier(new DesensitizeBeanSerializerModifier());
+        objectMapper.registerModule(module);
     }
 }
