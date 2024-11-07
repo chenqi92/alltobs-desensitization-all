@@ -37,7 +37,7 @@ public class DesensitizeSerializerModifier extends BeanSerializerModifier {
         // 获取类中的字段脱敏配置
         Map<String, Desensitize> fieldConfigMap = getFieldConfig(beanDesc.getBeanClass());
 
-        if (fieldConfigMap == null || fieldConfigMap.isEmpty()) {
+        if (fieldConfigMap.isEmpty()) {
             return serializer; // 如果没有脱敏配置，直接返回原始序列化器
         }
 

@@ -32,10 +32,11 @@ public class TestController {
 //                    @Desensitize.Field(name = "email", type = DesensitizeType.EMAIL, exclude = false)
 //            }
 //    )
-    @Desensitizes({
-            @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE),
-            @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")
-    })
+//    @Desensitizes({
+//            @Desensitize(field = "username"),
+//            @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE),
+//            @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")
+//    })
     @GetMapping("/test")
     public TestVO getUser() {
         TestVO test = new TestVO();

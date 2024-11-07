@@ -16,22 +16,22 @@ import java.lang.annotation.*;
 public @interface Desensitize {
 
     /**
-     * 字段名称（用于方法配置），如果为空，则表示使用默认字段名。
+     * 脱敏类型（例如：手机号、身份证等）
      */
-    String field() default "";
+    DesensitizeType type() default DesensitizeType.DEFAULT;
 
     /**
-     * 脱敏类型，默认是自定义脱敏。
-     */
-    DesensitizeType type() default DesensitizeType.CUSTOM;
-
-    /**
-     * 脱敏时使用的掩码字符，默认是“*”。
+     * 脱敏字符（例如：*、#等）
      */
     String maskChar() default "*";
 
     /**
-     * 是否启用脱敏功能（仅用于字段注解），默认启用。
+     * 指定脱敏作用的字段（当作用于方法时，可以指定方法参数的字段）
      */
-    boolean enabled() default true;
+    String field() default "";
+
+    /**
+     * 是否排除字段，排除时直接不返回该字段
+     */
+    boolean exclude() default false;
 }

@@ -23,7 +23,7 @@ public @interface ValidateDesensitize {
     /**
      * 脱敏类型，默认是自定义脱敏。
      */
-    DesensitizeType type() default DesensitizeType.CUSTOM;
+    DesensitizeType type() default DesensitizeType.DEFAULT;
 
     /**
      * 脱敏时使用的掩码字符，默认是“*”。

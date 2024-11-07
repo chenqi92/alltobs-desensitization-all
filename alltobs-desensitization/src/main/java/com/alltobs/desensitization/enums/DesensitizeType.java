@@ -1,5 +1,7 @@
 package com.alltobs.desensitization.enums;
 
+import java.util.regex.Pattern;
+
 /**
  * 脱敏类型枚举，用于定义不同的脱敏类型。
  *
@@ -9,28 +11,44 @@ package com.alltobs.desensitization.enums;
 public enum DesensitizeType {
 
     /**
-     * 默认类型，使用父注解的脱敏类型。
+     * 默认脱敏规则
      */
-    DEFAULT,
+    DEFAULT("default", "默认脱敏规则", ".*"),
 
     /**
-     * 自定义脱敏。
+     * 手机号脱敏
      */
-    CUSTOM,
+    MOBILE_PHONE("mobile_phone", "手机号脱敏", "^1[3-9]\\d{9}$"),
 
     /**
-     * 手机号脱敏。
+     * 身份证脱敏
      */
-    MOBILE_PHONE,
+    ID_CARD("id_card", "身份证脱敏", "^\\d{15}|\\d{18}$"),
 
     /**
-     * 邮箱脱敏。
+     * 邮箱脱敏
      */
-    EMAIL,
+    EMAIL("email", "邮箱脱敏", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
-    /**
-     * 身份证号脱敏。
-     */
-    ID_CARD,
-    // TODO: 适配其他类型的脱敏
+    private final String code;
+    private final String description;
+    private final String regex;
+
+    DesensitizeType(String code, String description, String regex) {
+        this.code = code;
+        this.description = description;
+        this.regex = regex;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Pattern getPattern() {
+        return Pattern.compile(this.regex);
+    }
 }
