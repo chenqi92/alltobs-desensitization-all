@@ -31,14 +31,11 @@ public class DesensitizeUtils {
             maskChar = "*";  // 设置默认脱敏字符
         }
 
-        switch (type) {
-            case MOBILE_PHONE:
-                return maskMobilePhone(value, maskChar);
-            case EMAIL:
-                return maskEmail(value, maskChar);
-            default:
-                return maskDefault(value, maskChar);
-        }
+        return switch (type) {
+            case MOBILE_PHONE -> maskMobilePhone(value, maskChar);
+            case EMAIL -> maskEmail(value, maskChar);
+            default -> maskDefault(value, maskChar);
+        };
     }
 
     private static String maskMobilePhone(String value, String maskChar) {

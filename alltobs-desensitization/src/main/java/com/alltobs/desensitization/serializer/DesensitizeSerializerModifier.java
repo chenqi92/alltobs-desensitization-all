@@ -2,6 +2,7 @@ package com.alltobs.desensitization.serializer;
 
 import com.alltobs.desensitization.annotation.Desensitize;
 import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.utils.DesensitizeUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -93,22 +94,26 @@ public class DesensitizeSerializerModifier extends BeanSerializerModifier {
                         Field field = value.getClass().getDeclaredField(fieldName);
                         field.setAccessible(true);
 
-                        // 获取字段的值
-                        Object fieldValue = field.get(value);
-                        if (fieldValue != null) {
-                            // 根据脱敏类型应用脱敏
-                            String maskChar = desensitize.maskChar();
-                            DesensitizeType type = desensitize.type();
+                        // 如果需要排除字段，直接设置为 null
+                        if (desensitize.exclude()) {
+                            field.set(value, null);
+                        } else {
+                            // 获取字段的值
+                            Object fieldValue = field.get(value);
+                            if (fieldValue != null) {
+                                // 根据脱敏类型应用脱敏
+                                String maskChar = desensitize.maskChar();
+                                DesensitizeType type = desensitize.type();
 
-                            // 执行脱敏处理
-                            String desensitizedValue = applyDesensitize(type, fieldValue.toString(), maskChar);
+                                // 执行脱敏处理
+                                String desensitizedValue = DesensitizeUtils.applyDesensitize(type, fieldValue.toString(), maskChar);
 
-                            // 设置脱敏后的值回字段
-                            field.set(value, desensitizedValue);
+                                // 设置脱敏后的值回字段
+                                field.set(value, desensitizedValue);
+                            }
                         }
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         // 如果找不到字段或访问错误，直接跳过
-                        e.printStackTrace();  // 可以选择打印日志或处理
                     }
                 }
             }
@@ -122,46 +127,5 @@ public class DesensitizeSerializerModifier extends BeanSerializerModifier {
             return (Class<T>) originalSerializer.handledType();
         }
 
-        /**
-         * 根据脱敏类型和掩码字符应用脱敏规则
-         *
-         * @param type     脱敏类型
-         * @param value    字段的值
-         * @param maskChar 脱敏字符
-         * @return 脱敏后的字符串
-         */
-        private String applyDesensitize(DesensitizeType type, String value, String maskChar) {
-            switch (type) {
-                case MOBILE_PHONE:
-                    return desensitizeMobilePhone(value, maskChar);
-                case EMAIL:
-                    return desensitizeEmail(value, maskChar);
-                case ID_CARD:
-                    return desensitizeIdCard(value, maskChar);
-                default:
-                    return desensitizeCustom(value, maskChar);
-            }
-        }
-
-        private String desensitizeMobilePhone(String value, String maskChar) {
-            // 实现手机号脱敏逻辑
-            return value.substring(0, 3) + maskChar.repeat(4) + value.substring(7);
-        }
-
-        private String desensitizeEmail(String value, String maskChar) {
-            // 实现邮箱脱敏逻辑
-            int atIndex = value.indexOf("@");
-            return value.charAt(0) + maskChar.repeat(atIndex - 1) + value.substring(atIndex);
-        }
-
-        private String desensitizeIdCard(String value, String maskChar) {
-            // 实现身份证号脱敏逻辑
-            return value.substring(0, 6) + maskChar.repeat(value.length() - 10) + value.substring(value.length() - 4);
-        }
-
-        private String desensitizeCustom(String value, String maskChar) {
-            // 默认的脱敏逻辑
-            return maskChar.repeat(value.length());
-        }
     }
 }
