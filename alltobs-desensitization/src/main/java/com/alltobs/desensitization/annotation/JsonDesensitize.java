@@ -1,6 +1,8 @@
 package com.alltobs.desensitization.annotation;
 
+import com.alltobs.desensitization.desensitizer.DefaultDesensitizer;
 import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.serializer.Desensitizer;
 
 import java.lang.annotation.*;
 
@@ -16,19 +18,15 @@ import java.lang.annotation.*;
 public @interface JsonDesensitize {
 
     /**
-     * 脱敏类型（例如：手机号、身份证等）
+     * 脱敏器类型，指定具体的脱敏器类，必须实现 Desensitizer 接口。
+     * 默认为 DefaultDesensitizer。
      */
-    DesensitizeType type() default DesensitizeType.DEFAULT;
+    Class<? extends Desensitizer> type() default DefaultDesensitizer.class;
 
     /**
      * 脱敏字符（例如：*、#等）
      */
     String maskChar() default "*";
-
-    /**
-     * 指定脱敏作用的字段（当作用于方法时，可以指定方法参数的字段）
-     */
-    String field() default "";
 
     /**
      * 是否排除字段，排除时直接不返回该字段

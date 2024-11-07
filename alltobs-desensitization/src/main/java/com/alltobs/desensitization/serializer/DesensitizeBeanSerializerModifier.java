@@ -25,23 +25,12 @@ public class DesensitizeBeanSerializerModifier extends BeanSerializerModifier {
                                                      BeanDescription beanDesc,
                                                      List<BeanPropertyWriter> beanProperties) {
 
-
-        Map<String, JsonDesensitize> methodDesensitizeMap = new HashMap<>();
-
         Iterator<BeanPropertyWriter> iterator = beanProperties.iterator();
         while (iterator.hasNext()) {
             BeanPropertyWriter writer = iterator.next();
-            String fieldName = writer.getName();
 
-            // 获取字段级别的 @Desensitize 注解
-            JsonDesensitize fieldDesensitize = writer.getAnnotation(JsonDesensitize.class);
-
-            JsonDesensitize desensitize = null;
-
-            // 决定使用哪个脱敏规则
-            if (fieldDesensitize != null) {
-                desensitize = fieldDesensitize;
-            }
+            // 获取字段级别的 @JsonDesensitize 注解
+            JsonDesensitize desensitize = writer.getAnnotation(JsonDesensitize.class);
 
             if (desensitize != null) {
                 if (desensitize.exclude()) {

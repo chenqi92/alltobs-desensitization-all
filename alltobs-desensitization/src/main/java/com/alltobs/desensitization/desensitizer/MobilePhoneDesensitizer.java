@@ -9,7 +9,6 @@ import com.alltobs.desensitization.serializer.Desensitizer;
  * &#064;date 2024/11/7
  */
 public class MobilePhoneDesensitizer implements Desensitizer {
-
     @Override
     public String desensitize(String value, String maskChar) {
         if (value != null && value.length() > 7) {
