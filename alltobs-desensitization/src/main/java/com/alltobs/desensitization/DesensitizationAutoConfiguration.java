@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @EnableAspectJAutoProxy
-@Import({DesensitizeAspect.class, DesensitizationRequestBodyAdvice.class, AlltobsJacksonConfig.class})
+@Import({DesensitizeAspect.class, DesensitizationRequestBodyAdvice.class})
 public class DesensitizationAutoConfiguration {
 
 }

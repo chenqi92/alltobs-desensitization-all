@@ -42,7 +42,7 @@ public class TestController {
         return test;
     }
 
-    @Desensitizes({@Desensitize(field = "username", exclude = true), @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE), @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")})
+    @Desensitizes({@Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE), @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")})
     @GetMapping("/testMethodAnno")
     public TestNoAnnoVO testMethodAnno() {
         TestNoAnnoVO test = new TestNoAnnoVO();
