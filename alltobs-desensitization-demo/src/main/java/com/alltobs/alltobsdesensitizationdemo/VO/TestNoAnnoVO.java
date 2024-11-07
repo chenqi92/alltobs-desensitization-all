@@ -11,14 +11,11 @@ import lombok.Data;
  * &#064;date 2024/11/1
  */
 @Data
-public class TestVO {
+public class TestNoAnnoVO {
 
-    @Desensitize(exclude = true)
     private String username;
 
-    @Desensitize(type = DesensitizeType.MOBILE_PHONE)
     private String phoneNumber;
 
-    @Desensitize(type = DesensitizeType.EMAIL, maskChar = "#")
     private String email;
 }

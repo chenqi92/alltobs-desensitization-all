@@ -31,32 +31,7 @@ public class DesensitizeUtils {
             maskChar = "*";  // 设置默认脱敏字符
         }
 
-        return switch (type) {
-            case MOBILE_PHONE -> maskMobilePhone(value, maskChar);
-            case EMAIL -> maskEmail(value, maskChar);
-            default -> maskDefault(value, maskChar);
-        };
-    }
-
-    private static String maskMobilePhone(String value, String maskChar) {
-        if (value != null && value.length() > 4) {
-            return value.substring(0, 3) + maskChar.repeat(4) + value.substring(7);
-        }
-        return value;
-    }
-
-    private static String maskEmail(String value, String maskChar) {
-        if (value != null && value.contains("@")) {
-            String[] parts = value.split("@");
-            return parts[0].charAt(0) + maskChar.repeat(parts[0].length() - 2) + parts[0].charAt(parts[0].length() - 1) + "@" + parts[1];
-        }
-        return value;
-    }
-
-    private static String maskDefault(String value, String maskChar) {
-        if (value != null) {
-            return maskChar.repeat(value.length());
-        }
-        return value;
+        // 使用枚举中的mask方法处理脱敏
+        return type != null ? type.mask(value, maskChar) : DesensitizeType.maskDefault(value, maskChar);
     }
 }
