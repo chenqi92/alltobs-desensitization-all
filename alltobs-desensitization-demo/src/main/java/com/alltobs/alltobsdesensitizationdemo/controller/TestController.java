@@ -1,6 +1,7 @@
 package com.alltobs.alltobsdesensitizationdemo.controller;
 
 import com.alltobs.alltobsdesensitizationdemo.DTO.TestDTO;
+import com.alltobs.alltobsdesensitizationdemo.VO.TestJsonVO;
 import com.alltobs.alltobsdesensitizationdemo.VO.TestNoAnnoVO;
 import com.alltobs.alltobsdesensitizationdemo.VO.TestVO;
 import com.alltobs.desensitization.annotation.Desensitize;
@@ -42,7 +43,7 @@ public class TestController {
         return test;
     }
 
-    @Desensitizes({@Desensitize(exclude = true), @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE), @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")})
+    @Desensitizes({@Desensitize(field = "username", exclude = true), @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE), @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")})
     @GetMapping("/testMethodAnno")
     public TestNoAnnoVO testMethodAnno() {
         TestNoAnnoVO test = new TestNoAnnoVO();
@@ -53,8 +54,8 @@ public class TestController {
     }
 
     @GetMapping("/testJsonAnno")
-    public TestVO testJsonAnno() {
-        TestVO test = new TestVO();
+    public TestJsonVO testJsonAnno() {
+        TestJsonVO test = new TestJsonVO();
         test.setUsername("JohnDoe");
         test.setPhoneNumber("13812345678");
         test.setEmail("john.doe@example.com");

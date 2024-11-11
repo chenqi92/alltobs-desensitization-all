@@ -99,7 +99,7 @@ public class DesensitizeAspect {
                         }
                     }
                 } catch (IllegalAccessException | NoSuchFieldException e) {
-                    e.printStackTrace();
+                    // 跳过不存在的字段
                 }
             });
         }
