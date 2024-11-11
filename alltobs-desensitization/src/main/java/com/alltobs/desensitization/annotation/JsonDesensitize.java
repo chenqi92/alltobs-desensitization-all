@@ -1,13 +1,17 @@
 package com.alltobs.desensitization.annotation;
 
 import com.alltobs.desensitization.desensitizer.DefaultDesensitizer;
-import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.desensitizer.DesensitizeDeserializer;
+import com.alltobs.desensitization.serializer.DesensitizeSerializer;
 import com.alltobs.desensitization.serializer.Desensitizer;
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.lang.annotation.*;
 
 /**
- * 注解 JsonDesensitize
+ * 用于在序列化和反序列化时处理敏感数据
  *
  * @author ChenQi
  * &#064;date 2024/11/7
@@ -15,6 +19,9 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@JacksonAnnotationsInside
+@JsonSerialize(using = DesensitizeSerializer.class)
+@JsonDeserialize(using = DesensitizeDeserializer.class)
 public @interface JsonDesensitize {
 
     /**
@@ -32,4 +39,10 @@ public @interface JsonDesensitize {
      * 是否排除字段，排除时直接不返回该字段
      */
     boolean exclude() default false;
+
+    /**
+     * 是否在反序列化时忽略脱敏后的数据。
+     * 如果设置为 true，且前端传入的值为 null 或匹配脱敏正则表达式，则忽略该字段。
+     */
+    boolean ignoreDesensitized() default false;
 }

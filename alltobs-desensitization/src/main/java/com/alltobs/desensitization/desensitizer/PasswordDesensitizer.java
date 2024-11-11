@@ -1,6 +1,6 @@
 package com.alltobs.desensitization.desensitizer;
 
-import com.alltobs.desensitization.serializer.Desensitizer;
+import java.util.regex.Pattern;
 
 /**
  * 类 PasswordDesensitizer
@@ -8,12 +8,19 @@ import com.alltobs.desensitization.serializer.Desensitizer;
  * @author ChenQi
  * &#064;date 2024/11/7
  */
-public class PasswordDesensitizer implements Desensitizer {
+public class PasswordDesensitizer extends BaseDesensitizer {
+
     @Override
     public String desensitize(String value, String maskChar) {
-        if (value != null) {
+        if (value != null && !value.isEmpty()) {
             return maskChar.repeat(value.length());
         }
-        return null;
+        return value;
+    }
+
+    @Override
+    public String getDesensitizedRegex(String maskChar) {
+        String escapedMaskChar = Pattern.quote(maskChar);
+        return "^" + escapedMaskChar + "+$";
     }
 }

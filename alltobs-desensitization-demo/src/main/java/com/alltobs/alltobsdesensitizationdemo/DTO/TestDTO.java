@@ -1,9 +1,8 @@
 package com.alltobs.alltobsdesensitizationdemo.DTO;
 
-import com.alltobs.desensitization.annotation.Desensitize;
-import com.alltobs.desensitization.annotation.ValidateDesensitize;
-import com.alltobs.desensitization.enums.DesensitizeType;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.alltobs.desensitization.annotation.JsonDesensitize;
+import com.alltobs.desensitization.desensitizer.EmailDesensitizer;
+import com.alltobs.desensitization.desensitizer.MobilePhoneDesensitizer;
 import lombok.Data;
 
 /**
@@ -15,12 +14,12 @@ import lombok.Data;
 @Data
 public class TestDTO {
 
-    @ValidateDesensitize(enabled = false)
+    @JsonDesensitize(exclude = true, ignoreDesensitized = true)
     private String username;
 
-    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true)
+    @JsonDesensitize(type = MobilePhoneDesensitizer.class, ignoreDesensitized = true)
     private String phoneNumber;
 
-    @ValidateDesensitize(type = DesensitizeType.MOBILE_PHONE, enabled = true, maskChar = "#")
+    @JsonDesensitize(type = EmailDesensitizer.class, maskChar = "#", ignoreDesensitized = true)
     private String email;
 }

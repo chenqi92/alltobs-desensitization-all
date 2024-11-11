@@ -15,4 +15,12 @@ public interface Desensitizer {
      * @return 脱敏后的值
      */
     String desensitize(String value, String maskChar);
+
+    /**
+     * 生成用于匹配脱敏后数据的正则表达式。
+     *
+     * @param maskChar 脱敏字符
+     * @return 正则表达式字符串
+     */
+    String getDesensitizedRegex(String maskChar);
 }
