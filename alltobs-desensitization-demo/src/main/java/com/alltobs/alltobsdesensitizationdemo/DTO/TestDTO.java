@@ -25,6 +25,6 @@ public class TestDTO {
     @JsonDesensitize(type = EmailDesensitizer.class, maskChar = "#", ignoreDesensitized = true)
     private String email;
 
-    @JsonDesensitize(type = IDCardDesensitizer.class, maskChar = "^")
+    @JsonDesensitize(type = IDCardDesensitizer.class, ignoreDesensitized = true)
     private String idCard;
 }

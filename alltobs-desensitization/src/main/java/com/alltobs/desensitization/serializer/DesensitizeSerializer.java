@@ -1,8 +1,6 @@
 package com.alltobs.desensitization.serializer;
 
-import com.alltobs.desensitization.annotation.Desensitize;
 import com.alltobs.desensitization.annotation.JsonDesensitize;
-import com.alltobs.desensitization.utils.DesensitizeUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -20,44 +18,46 @@ import java.io.IOException;
  */
 public class DesensitizeSerializer extends JsonSerializer<Object> implements ContextualSerializer {
 
-    private JsonDesensitize desensitize;
+    private Class<? extends Desensitizer> desensitizerClass;
+    private String maskChar;
 
     public DesensitizeSerializer() {
     }
 
-    public DesensitizeSerializer(JsonDesensitize desensitize) {
-        this.desensitize = desensitize;
+    public DesensitizeSerializer(Class<? extends Desensitizer> desensitizerClass, String maskChar) {
+        this.desensitizerClass = desensitizerClass;
+        this.maskChar = maskChar;
     }
 
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers)
             throws IOException {
-        if (desensitize != null) {
-            if (desensitize.exclude()) {
-                gen.writeNull();
-            } else {
-                String strValue = value != null ? value.toString() : "";
-                Desensitizer desensitizer = getDesensitizerInstance(desensitize.type());
-                if (desensitizer != null) {
-                    String maskedValue = desensitizer.desensitize(strValue, desensitize.maskChar());
-                    gen.writeString(maskedValue);
-                } else {
-                    // 未找到对应的脱敏器，使用原值
-                    gen.writeString(strValue);
-                }
-            }
+        if (value == null) {
+            gen.writeNull();
+            return;
+        }
+
+        String strValue = value.toString();
+        Desensitizer desensitizer = getDesensitizerInstance(desensitizerClass);
+        if (desensitizer != null) {
+            String maskedValue = desensitizer.desensitize(strValue, maskChar);
+            gen.writeString(maskedValue);
         } else {
-            gen.writeObject(value);
+            // 未找到对应的脱敏器，使用原值
+            gen.writeString(strValue);
         }
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
-                                              BeanProperty property) throws JsonMappingException {
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+            throws JsonMappingException {
         if (property != null) {
-            JsonDesensitize desensitize = property.getAnnotation(JsonDesensitize.class);
-            if (desensitize != null) {
-                return new DesensitizeSerializer(desensitize);
+            JsonDesensitize annotation = property.getAnnotation(JsonDesensitize.class);
+            if (annotation == null) {
+                annotation = property.getContextAnnotation(JsonDesensitize.class);
+            }
+            if (annotation != null) {
+                return new DesensitizeSerializer(annotation.type(), annotation.maskChar());
             }
         }
         return this;
@@ -65,11 +65,11 @@ public class DesensitizeSerializer extends JsonSerializer<Object> implements Con
 
     private Desensitizer getDesensitizerInstance(Class<? extends Desensitizer> desensitizerClass) {
         try {
-            // 反射创建实例
-            return desensitizerClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            // 处理异常
-            return null;
+            if (desensitizerClass != null) {
+                return desensitizerClass.getDeclaredConstructor().newInstance();
+            }
+        } catch (Exception ignored) {
         }
+        return null;
     }
 }
