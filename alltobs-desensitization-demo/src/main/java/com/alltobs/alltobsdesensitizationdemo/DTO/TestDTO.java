@@ -1,8 +1,10 @@
 package com.alltobs.alltobsdesensitizationdemo.DTO;
 
+import com.alltobs.alltobsdesensitizationdemo.desensitizer.IDCardDesensitizer;
 import com.alltobs.desensitization.annotation.JsonDesensitize;
 import com.alltobs.desensitization.desensitizer.EmailDesensitizer;
 import com.alltobs.desensitization.desensitizer.MobilePhoneDesensitizer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -22,4 +24,7 @@ public class TestDTO {
 
     @JsonDesensitize(type = EmailDesensitizer.class, maskChar = "#", ignoreDesensitized = true)
     private String email;
+
+    @JsonDesensitize(type = IDCardDesensitizer.class, maskChar = "^")
+    private String idCard;
 }

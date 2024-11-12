@@ -34,8 +34,7 @@ public class DesensitizeSerializer extends JsonSerializer<Object> implements Con
             throws IOException {
         if (desensitize != null) {
             if (desensitize.exclude()) {
-                // 排除字段
-                return;
+                gen.writeNull();
             } else {
                 String strValue = value != null ? value.toString() : "";
                 Desensitizer desensitizer = getDesensitizerInstance(desensitize.type());

@@ -1,10 +1,12 @@
 package com.alltobs.alltobsdesensitizationdemo.VO;
 
+import com.alltobs.alltobsdesensitizationdemo.desensitizer.IDCardDesensitizer;
 import com.alltobs.desensitization.annotation.Desensitize;
 import com.alltobs.desensitization.annotation.JsonDesensitize;
 import com.alltobs.desensitization.desensitizer.EmailDesensitizer;
 import com.alltobs.desensitization.desensitizer.MobilePhoneDesensitizer;
 import com.alltobs.desensitization.enums.DesensitizeType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -24,4 +26,7 @@ public class TestJsonVO {
 
     @JsonDesensitize(type = EmailDesensitizer.class, maskChar = "#")
     private String email;
+
+    @JsonDesensitize(type = IDCardDesensitizer.class)
+    private String idCard;
 }
