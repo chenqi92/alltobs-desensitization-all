@@ -2,8 +2,6 @@ package com.alltobs.desensitization.desensitizer;
 
 import com.alltobs.desensitization.serializer.Desensitizer;
 
-import java.util.regex.Pattern;
-
 /**
  * 基础脱敏器，实现了 Desensitizer 接口，提供默认的 containsSensitiveData 实现。
  *

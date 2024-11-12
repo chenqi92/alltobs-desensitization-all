@@ -2,8 +2,6 @@ package com.alltobs.desensitization.utils;
 
 import com.alltobs.desensitization.enums.DesensitizeType;
 
-import java.util.regex.Matcher;
-
 /**
  * 类 DesensitizeUtils
  *

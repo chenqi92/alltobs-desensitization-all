@@ -1,7 +1,5 @@
 package com.alltobs.desensitization.desensitizer;
 
-import com.alltobs.desensitization.serializer.Desensitizer;
-
 import java.util.regex.Pattern;
 
 /**
