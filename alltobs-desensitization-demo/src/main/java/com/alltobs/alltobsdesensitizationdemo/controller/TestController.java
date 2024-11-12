@@ -6,7 +6,8 @@ import com.alltobs.alltobsdesensitizationdemo.VO.TestNoAnnoVO;
 import com.alltobs.alltobsdesensitizationdemo.VO.TestVO;
 import com.alltobs.desensitization.annotation.Desensitize;
 import com.alltobs.desensitization.annotation.Desensitizes;
-import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.desensitizer.EmailDesensitizer;
+import com.alltobs.desensitization.desensitizer.MobilePhoneDesensitizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +33,7 @@ public class TestController {
         return test;
     }
 
-    @Desensitizes({@Desensitize(field = "username", exclude = true), @Desensitize(field = "phoneNumber", type = DesensitizeType.MOBILE_PHONE), @Desensitize(field = "email", type = DesensitizeType.EMAIL, maskChar = "#")})
+    @Desensitizes({@Desensitize(field = "username", exclude = true), @Desensitize(field = "phoneNumber", type = MobilePhoneDesensitizer.class), @Desensitize(field = "email", type = EmailDesensitizer.class, maskChar = "#")})
     @GetMapping("/testMethodAnno")
     public TestNoAnnoVO testMethodAnno() {
         TestNoAnnoVO test = new TestNoAnnoVO();

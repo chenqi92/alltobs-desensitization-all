@@ -1,6 +1,7 @@
 package com.alltobs.desensitization.annotation;
 
-import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.desensitizer.DefaultDesensitizer;
+import com.alltobs.desensitization.serializer.Desensitizer;
 
 import java.lang.annotation.*;
 
@@ -16,9 +17,9 @@ import java.lang.annotation.*;
 public @interface Desensitize {
 
     /**
-     * 脱敏类型（例如：手机号、身份证等）
+     * 脱敏器类型（例如：MobilePhoneDesensitizer.class）。
      */
-    DesensitizeType type() default DesensitizeType.DEFAULT;
+    Class<? extends Desensitizer> type() default DefaultDesensitizer.class;
 
     /**
      * 脱敏字符（例如：*、#等）

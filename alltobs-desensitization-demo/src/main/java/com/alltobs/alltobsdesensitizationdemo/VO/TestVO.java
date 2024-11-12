@@ -1,7 +1,8 @@
 package com.alltobs.alltobsdesensitizationdemo.VO;
 
 import com.alltobs.desensitization.annotation.Desensitize;
-import com.alltobs.desensitization.enums.DesensitizeType;
+import com.alltobs.desensitization.desensitizer.EmailDesensitizer;
+import com.alltobs.desensitization.desensitizer.MobilePhoneDesensitizer;
 import lombok.Data;
 
 /**
@@ -16,9 +17,9 @@ public class TestVO {
     @Desensitize(exclude = true)
     private String username;
 
-    @Desensitize(type = DesensitizeType.MOBILE_PHONE)
+    @Desensitize(type = MobilePhoneDesensitizer.class)
     private String phoneNumber;
 
-    @Desensitize(type = DesensitizeType.EMAIL, maskChar = "#")
+    @Desensitize(type = EmailDesensitizer.class, maskChar = "#")
     private String email;
 }

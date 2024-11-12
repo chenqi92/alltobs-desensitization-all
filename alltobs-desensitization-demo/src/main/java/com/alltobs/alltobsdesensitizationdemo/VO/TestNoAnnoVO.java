@@ -1,7 +1,5 @@
 package com.alltobs.alltobsdesensitizationdemo.VO;
 
-import com.alltobs.desensitization.annotation.Desensitize;
-import com.alltobs.desensitization.enums.DesensitizeType;
 import lombok.Data;
 
 /**
