@@ -30,6 +30,7 @@ public class TestController {
         test.setUsername("JohnDoe");
         test.setPhoneNumber("13812345678");
         test.setEmail("john.doe@example.com");
+        test.setIdCard("123456199001011234");
         return test;
     }
 

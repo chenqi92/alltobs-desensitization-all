@@ -6,7 +6,7 @@
 
     <groupId>com.alltobs</groupId>
     <artifactId>alltobs-desensitization</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>${project.artifactId}</name>
     <packaging>jar</packaging>
     <description>敏感字段脱敏</description>
